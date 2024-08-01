@@ -102,5 +102,6 @@ int main() {
     addEdge(&g, 2, 3);
 
     bfs(&g, 0);
+    bfs(&g, 1);
     return 0;
 }
