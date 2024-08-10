@@ -42,6 +42,7 @@ HashMap* createHashMap() {
 void insert(HashMap* map, char* key, int value) {
     unsigned int bucketIndex = hash(key);
     HashNode* new_node = malloc(sizeof(HashNode));
+    /* `strdup(key)` is the fucnction to dupplicate the key string  */
     new_node->key = strdup(key);
     new_node->value = value;
     new_node->next = map->buckets[bucketIndex];
@@ -65,4 +66,33 @@ int search(HashMap* map, char* key) {
 // Remove a key from the hash map
 void removeKey(HashMap* map, char* key) {
     unsigned int bucketIndex = hash(key);
+    HashNode *node = map->buckets[bucketIndex], *prev = NULL;
+
+    while (node) {
+        if (strcmp(node->key, key) == 0) {
+            if (prev) {
+                prev->next = node->next;
+            } else {
+                map->buckets[bucketIndex] = node->next;
+            }
+            free(node->key);
+            free(node);
+            return;
+        }
+        prev = node;
+        node = node->next;
+    }
+}
+
+// Driver code to demonstrate the hash map
+int main() {
+    HashMap* map = createHashMap();
+    insert(map, "name", 1);
+    insert(map, "age", 30);
+    printf("The value for 'name' is %d\n", search(map, "name"));
+    printf("The value for 'age' is %d\n", search(map, "age"));
+    removeKey(map, "name");
+    printf("The value for 'name' after deletion is %d\n", search(map, "name"));
+
+    return 0;
 }
