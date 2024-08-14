@@ -57,7 +57,25 @@ void rotateRight(Node **root, Node* y) {
 
 // Left Rotation
 void rotateLeft(Node **root, Node* x) {
-    
+    Node *y = x->right;
+    x->right = y->left;
+
+    if (y->left != NULL) {
+        y->left->parent = x;
+    }
+    y->parent = x->parent;
+
+    if (x->parent == NULL) {
+        *root = y;
+    } else if (x == x->parent->left) {
+        x->parent->left = y;
+    }
+    else {
+        x->parent->right = y;
+    }
+
+    y->left = x;
+    x->parent = y;
 }
 // Insertion
 /* Deletion 
