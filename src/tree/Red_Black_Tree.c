@@ -77,7 +77,40 @@ void rotateLeft(Node **root, Node* x) {
     y->left = x;
     x->parent = y;
 }
-// Insertion
+/* Insertion: When inserting a node, we insert it like a normal binary search tree and then fix and violations of the red-black tree properties*/
+void fixViolation(Node **root, Node *z);
+
+void insert(Node **root, int data) {
+    Node *z = createNode(data);
+    Node *y = NULL; // `y` keeps track of the parent node where the new node `z` will be inserted
+    Node *x = *root; // `x` is used to traverse the tree starting from the root
+
+    while (x != NULL) {
+        y = x;
+        if (z->data < x->data) {
+            x = x->left;
+        } else {
+            x = x->right;
+        }
+    }
+
+    // Assigning the parent and inserting the node
+    z->parent = y;
+
+    if(y == NULL) {
+        *root = z;
+    } else if (z->data < y->data) {
+        y->left = z;
+    } else {
+        y->right = z;
+    }
+
+    // To be implemented
+    fixViolation(tree, z);
+}
+
+
+
 /* Deletion 
 1. Transplate: hleps move subtrees within the red-black tree
 2. Delete
