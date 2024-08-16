@@ -9,6 +9,10 @@ typedef struct Node {
     struct Node *left, *right, *parent;
 } Node;
 
+typedef struct RedBlackTree {
+    Node *root;
+} RedBlackTree;
+
 // Function to create a new node
 Node* createNode(int data) {
     Node* newNode = (Node*)malloc(sizeof(Node));
@@ -79,10 +83,12 @@ void rotateLeft(Node **root, Node* x) {
 }
 /* Insertion: When inserting a node, we insert it like a normal binary search tree and then fix and violations of the red-black tree properties*/
 void fixViolation(Node **root, Node *z) {
-    while (z != tree->root && z->parent->color == RED) {
+    while (z != *root && z->parent->color == RED) {
+        Node *grandparent = z->parent->parent;
+
         // Case1: parent is a left child
-        if (z->parent == z->parent->parent->left) {
-            Node *y = z->parent->parent->right // If `z`'s parent is a left child of its grandparent, we check the color of `z`'s uncle `y`, which is the right child of `z`'s grandparent.
+        if (z->parent == grandparent->left) {
+            Node *y = grandparent->right; // If `z`'s parent is a left child of its grandparent, we check the color of `z`'s uncle `y`, which is the right child of `z`'s grandparent.
 
             // Case 1a: Uncle `y` is Red:
             /* If `y` is red, we jave a situation where both the parent and the uncle are red. Then solution is to:
@@ -92,8 +98,8 @@ void fixViolation(Node **root, Node *z) {
             if (y != NULL && y->color == RED) {
                 z->parent->color = BLACK;
                 y->color = BLACK;
-                z->parent->parent->color = RED;
-                z = z->parent->parent;
+                grandparent->color = RED;
+                z = grandparent;
             }
 
             // Case 1b: Uncle `y` is Black or NULL:
@@ -101,35 +107,40 @@ void fixViolation(Node **root, Node *z) {
                 1. If `z` is a right child: we perform a left rotation around `z`'s parent to turn the situation into a case where `z` is a left child
                 2. Recolor `z`'s parent to black and `z`'s grandparent to red
                 3. Perform a right rotation around `z`'s grandparent */
-                else if (z == z->parent->right) {
-                    z = z->parent;
-                    rotateLeft(tree, z);
-                }
+                else {
+                    if (z == z->parent->right) {
+                        z = z->parent;
+                        rotateLeft(root, z);
+                    }
                 z->parent->color = BLACK;
                 z->parent->parent->color = RED;
-                rotateRight(tree, z->parent->parent);
+                rotateRight(root, z->parent->parent);
+                }
         } else {
             // Case 2: Parent is a right child
             Node *y = z->parent->parent->left;
+
             // Case 2a: Uncle `y` is Red:
             if (y != NULL && y->color == RED) {
                 z->parent->color = BLACK;
                 y->color = BLACK;
-                z->parent=>parent->color = RED:
+                z->parent->parent->color = RED;
                 z = z->parent->parent;
             } 
             // Case 2b: Uncle `y` is black or NULL;
-            else if (z == z->parent->left) {
-                z = z->parent;
-                rotateRight(tree, z);
-            }
-            z->parent->color = BLACK;
+            else {
+                if (z == z->parent->left) {
+                    z = z->parent;
+                    rotateRight(root, z);
+                }
+                            z->parent->color = BLACK;
             z->parent->parent->color = RED;
-            rotateLeft(tree, z->parent->parent); // If `z` is a left child: Perform a right rotation around `z`'s parent, recolor and then perform a left rotation around the grandparent
+            rotateLeft(root, z->parent->parent); // If `z` is a left child: Perform a right rotation around `z`'s parent, recolor and then perform a left rotation around the grandparent
+            }
         }
     }
     // Ensure root is black
-    tree->root->color = BLACK;
+    (*root)->color = BLACK;
 }
 
 void insert(Node **root, int data) {
@@ -157,14 +168,33 @@ void insert(Node **root, int data) {
         y->right = z;
     }
 
-    // To be implemented
-    fixViolation(tree, z);
+    fixViolation(root, z);
 }
 
+// Utility Functions for Traversing and Printing
+void inOrderTraversal(Node *root) {
+    if (root == NULL) {
+        return;
+    }
 
+    inOrderTraversal(root->left);
+    printf("%d ", root->data);
+    inOrderTraversal(root->right);
+}
 
-/* Deletion 
-1. Transplate: hleps move subtrees within the red-black tree
-2. Delete
-3. Delete_fixup
-*/
+int main() {
+    RedBlackTree tree;
+    tree.root = NULL;
+
+    insert(&tree, 10);
+    insert(&tree, 20);
+    insert(&tree, 30);
+    insert(&tree, 40);
+    insert(&tree, 50);
+    insert(&tree, 25);
+
+    printf("In-order traversal of the tree: ");
+    inOrderTraversal(tree.root);
+
+    return 0;
+}
