@@ -78,7 +78,59 @@ void rotateLeft(Node **root, Node* x) {
     x->parent = y;
 }
 /* Insertion: When inserting a node, we insert it like a normal binary search tree and then fix and violations of the red-black tree properties*/
-void fixViolation(Node **root, Node *z);
+void fixViolation(Node **root, Node *z) {
+    while (z != tree->root && z->parent->color == RED) {
+        // Case1: parent is a left child
+        if (z->parent == z->parent->parent->left) {
+            Node *y = z->parent->parent->right // If `z`'s parent is a left child of its grandparent, we check the color of `z`'s uncle `y`, which is the right child of `z`'s grandparent.
+
+            // Case 1a: Uncle `y` is Red:
+            /* If `y` is red, we jave a situation where both the parent and the uncle are red. Then solution is to:
+                1. Recolor the parent and the uncle to black
+                2. Recolor the grandparent to red
+                3. Move `z` up to the grandparent node and continue the loop */
+            if (y != NULL && y->color == RED) {
+                z->parent->color = BLACK;
+                y->color = BLACK;
+                z->parent->parent->color = RED;
+                z = z->parent->parent;
+            }
+
+            // Case 1b: Uncle `y` is Black or NULL:
+            /* If `y` is black or NULL:
+                1. If `z` is a right child: we perform a left rotation around `z`'s parent to turn the situation into a case where `z` is a left child
+                2. Recolor `z`'s parent to black and `z`'s grandparent to red
+                3. Perform a right rotation around `z`'s grandparent */
+                else if (z == z->parent->right) {
+                    z = z->parent;
+                    rotateLeft(tree, z);
+                }
+                z->parent->color = BLACK;
+                z->parent->parent->color = RED;
+                rotateRight(tree, z->parent->parent);
+        } else {
+            // Case 2: Parent is a right child
+            Node *y = z->parent->parent->left;
+            // Case 2a: Uncle `y` is Red:
+            if (y != NULL && y->color == RED) {
+                z->parent->color = BLACK;
+                y->color = BLACK;
+                z->parent=>parent->color = RED:
+                z = z->parent->parent;
+            } 
+            // Case 2b: Uncle `y` is black or NULL;
+            else if (z == z->parent->left) {
+                z = z->parent;
+                rotateRight(tree, z);
+            }
+            z->parent->color = BLACK;
+            z->parent->parent->color = RED;
+            rotateLeft(tree, z->parent->parent); // If `z` is a left child: Perform a right rotation around `z`'s parent, recolor and then perform a left rotation around the grandparent
+        }
+    }
+    // Ensure root is black
+    tree->root->color = BLACK;
+}
 
 void insert(Node **root, int data) {
     Node *z = createNode(data);
